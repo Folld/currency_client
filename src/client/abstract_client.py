@@ -106,7 +106,7 @@ class AbstractInteractionClient:
 
     async def _request(  # noqa: C901
         self,
-        interaction_method: str,  # todo: it's never use... Why it here?
+        interaction_method: str,  # todo: it's never use... Why is it here?
         method: str,
         url: str,
         **kwargs: Any,

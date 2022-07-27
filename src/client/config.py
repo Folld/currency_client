@@ -4,13 +4,13 @@ from aiohttp import BasicAuth
 import global_settings
 
 
-class AuthType(Enum):
+class AuthTypes(Enum):
     basic = 'basic'
 
 
 DEFAULTS = {
     'AUTH': {
-        'auth_type': AuthType.basic,
+        'auth_type': AuthTypes.basic,
         'login': None,
         'password': None
     },
@@ -57,7 +57,7 @@ class Config:
         return self.__base_url
 
     def __init_config(self, defaults: dict, external: Optional[dict] = None):
-        """You can use global_settings in your project. But for example I'll use default config."""
+        """You can use global_settings in your project."""
 
         self.__config = defaults.copy()
         if isinstance(external, dict):
@@ -68,8 +68,8 @@ class Config:
         self.__request_timeout = self.config.get('REQUEST_TIMEOUT')
         self.__connect_timeout = self.config.get('CONNECT_TIMEOUT')
 
-    def __init_auth(self, auth_type: AuthType, **kwargs):
-        if AuthType(auth_type) == AuthType.basic:
+    def __init_auth(self, auth_type: AuthTypes, **kwargs):
+        if AuthTypes(auth_type) == AuthTypes.basic:
             if kwargs.get('login') and kwargs.get('password'):
                 self.__auth = BasicAuth(**kwargs)
 
