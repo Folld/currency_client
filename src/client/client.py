@@ -27,7 +27,8 @@ class CloudPaymentsClient(AbstractInteractionClient):
         return super().__new__(cls)
 
     async def test(self):
-        return await self.get('test', self.endpoint_url(self.Endpoints.test.value))
+        """Test request"""
+        return await self.get('test', self.endpoint_url(self.Endpoints.test.value), auth=config.auth)
 
     async def token_charge(self,
                            amount: float,
@@ -47,9 +48,9 @@ class CloudPaymentsClient(AbstractInteractionClient):
         :param currency: Валюта: RUB/USD/EUR/GBP. Если параметр не передан, то по умолчанию принимает значение RUB
         :param invoice_id: Номер счета или заказа
         :param description: Описание оплаты в свободной форме
-        :param account_id: Обязательный идентификатор пользователя для создания подписки и получения токена
+        :param account_id: Идентификатор пользователя
         :param email: E-mail плательщика, на который будет отправлена квитанция об оплате
-        :param json_data: Любые другие данные, которые будут связаны с транзакцией, в том числе инструкции для создания подписки или формирования онлайн-чека должны обёртываться в объект cloudpayments.
+        :param json_data: Любые другие данные, которые будут связаны с транзакцией
 
         :return:
         """
