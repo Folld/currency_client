@@ -4,13 +4,13 @@ from aiohttp import BasicAuth
 import global_settings
 
 
-class AuthEnum(Enum):
-    basic: str = 'basic'
+class AuthType(Enum):
+    basic = 'basic'
 
 
 DEFAULTS = {
     'AUTH': {
-        'auth_type': AuthEnum.basic,
+        'auth_type': AuthType.basic,
         'login': None,
         'password': None
     },
@@ -68,8 +68,8 @@ class Config:
         self.__request_timeout = self.config.get('REQUEST_TIMEOUT')
         self.__connect_timeout = self.config.get('CONNECT_TIMEOUT')
 
-    def __init_auth(self, auth_type: AuthEnum, **kwargs):
-        if AuthEnum(auth_type).value == 'basic':
+    def __init_auth(self, auth_type: AuthType, **kwargs):
+        if AuthType(auth_type) == AuthType.basic:
             if kwargs.get('login') and kwargs.get('password'):
                 self.__auth = BasicAuth(**kwargs)
 
