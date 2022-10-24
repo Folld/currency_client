@@ -24,9 +24,11 @@ class AbstractInteractionClient:
     def __init__(self) -> None:
         self.default_timeout: Optional[ClientTimeout] = None
         if self.REQUEST_TIMEOUT:
-            self.default_timeout = ClientTimeout(total=self.REQUEST_TIMEOUT, connect=self.CONNECT_TIMEOUT)
+            self.default_timeout = ClientTimeout(
+                total=self.REQUEST_TIMEOUT, connect=self.CONNECT_TIMEOUT)
 
-    def _get_session_cls(self) -> Type[ClientSession]:
+    @staticmethod
+    def _get_session_cls() -> Type[ClientSession]:
         return ClientSession
 
     def _get_session_kwargs(self) -> Dict[str, Any]:
@@ -59,7 +61,8 @@ class AbstractInteractionClient:
             params=None,
         )
 
-    async def _process_response(self, response: ClientResponse, interaction_method: str) -> Dict[str, Any]:
+    async def _process_response(
+            self, response: ClientResponse, interaction_method: str) -> Dict[str, Any]:
         if response.status >= 400:
             await self._handle_response_error(response)
         return await response.json()
@@ -106,7 +109,7 @@ class AbstractInteractionClient:
 
     async def _request(  # noqa: C901
         self,
-        interaction_method: str,  # todo: it's never use... Why is it here?
+        interaction_method: str,
         method: str,
         url: str,
         **kwargs: Any,

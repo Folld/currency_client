@@ -1,9 +1,8 @@
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Any, Optional
 
 from aiohttp import TCPConnector
-from dataclasses_json import dataclass_json, config as dc_config
+from pydantic import BaseModel, Field
 
 from client.abstract_client import AbstractInteractionClient
 from client.config import config
@@ -11,14 +10,14 @@ from client.schemas import Currency
 
 
 class CloudPaymentsClient(AbstractInteractionClient):
-    CONNECTOR = TCPConnector(verify_ssl=False)
+    CONNECTOR = TCPConnector()
 
     REQUEST_TIMEOUT = config.request_timeout
     CONNECT_TIMEOUT = config.connection_timeout
 
     BASE_URL = config.base_url
 
-    class Endpoints(Enum):
+    class Endpoints(str, Enum):
         test = '/test'
         token_charge = '/payments/tokens/charge'
 
@@ -57,29 +56,35 @@ class CloudPaymentsClient(AbstractInteractionClient):
         :return:
         """
 
-        @dataclass_json
-        @dataclass
-        class InnerDTO:
-            amount: float = field(metadata=dc_config(field_name="Amount"))
-            token: str = field(metadata=dc_config(field_name="Token"))
-            account_id: str = field(metadata=dc_config(field_name="AccountId"))
-            ip_address: Optional[str] = field(metadata=dc_config(field_name="IpAddress"))
-            currency: Optional[str] = field(metadata=dc_config(field_name="Currency"))
-            invoice_id: Optional[str] = field(metadata=dc_config(field_name="InvoiceId"))
-            description: Optional[str] = field(metadata=dc_config(field_name="Description"))
-            email: Optional[str] = field(metadata=dc_config(field_name="Email"))
-            json_data: Optional[dict] = field(metadata=dc_config(field_name="JsonData"))
+        class InnerDTO(BaseModel):
+            amount: float = Field(alias="Amount")
+            token: str = Field(alias="Token")
+            account_id: str = Field(alias="AccountId")
+            ip_address: Optional[str] = Field(alias="IpAddress")
+            currency: Optional[str] = Field(alias="Currency")
+            invoice_id: Optional[str] = Field(alias="InvoiceId")
+            description: Optional[str] = Field(alias="Description")
+            email: Optional[str] = Field(alias="Email")
+            json_data: Optional[dict] = Field(alias="JsonData")
 
-        @dataclass_json
-        @dataclass
-        class OutDTO:
+            def dict(self, *args, by_alias=True, **kwargs):
+                return super().dict(*args, by_alias=by_alias, **kwargs)
+
+        class OutDTO(BaseModel):
             Success: bool
             Message: Optional[str] = None
             Model: Optional[dict] = None
 
-        data = InnerDTO(amount=amount, ip_address=ip_address, token=token, currency=Currency(currency).value,
-                        invoice_id=invoice_id, description=description, account_id=account_id,
-                        email=email, json_data=json_data)
-        url = self.endpoint_url(self.Endpoints.token_charge.value)
-        response = await self.post('charge', url, json=data.to_dict(), auth=config.auth)
-        return OutDTO(**response).to_dict()
+        data = InnerDTO(
+            Amount=amount,
+            IpAddress=ip_address,
+            Token=token,
+            Currency=Currency(currency),
+            InvoiceId=invoice_id,
+            Description=description,
+            AccountId=account_id,
+            Email=email,
+            JsonData=json_data)
+        url = self.endpoint_url(self.Endpoints.token_charge)
+        response = await self.post('charge', url, json=data.dict(), auth=config.auth)
+        return OutDTO(**response).dict()

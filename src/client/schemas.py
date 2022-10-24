@@ -1,9 +1,10 @@
-from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
+from pydantic import BaseModel
 
-class Currency(Enum):
+
+class Currency(str, Enum):
     rub: str = 'RUB'
     euro: str = 'EUR'
     dollar_usa: str = 'USD'
@@ -33,7 +34,7 @@ class Currency(Enum):
     dirham: str = 'AED'
 
 
-class CultureName(Enum):
+class CultureName(str, Enum):
     russian: str = 'ru-RU'
     US: str = 'en-US'
     latvian: str = 'lv'
@@ -44,8 +45,7 @@ class CultureName(Enum):
     turkish: str = 'tr'
 
 
-@dataclass
-class Payer:
+class Payer(BaseModel):
     FirstName: Optional[str] = None
     LastName: Optional[str] = None
     MiddleName: Optional[str] = None
